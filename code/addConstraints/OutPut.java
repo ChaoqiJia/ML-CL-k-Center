@@ -1,94 +1,90 @@
-package Algorithm.addConstraints;
+package addConstraints;
 
-import Algorithm.GreedyAlg.greedyCompute;
-import Algorithm.MatchingAlg.matchingCompute;
-import Algorithm.Tools.Point;
-import Algorithm.OurAlg.ourComputer;
-
-import static Algorithm.Tools.tools.getRmax1;
-
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import Tools.Point;
+import OurAlg.ourComputer;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Random;
+
+import static Tools.tools.getRmax1;
+
 
 public class OutPut {
 
-    static ArrayList<Point> pointArrayList = new ArrayList<Point>();
-    static int k = , d = , markPosition = ; //k: the number of clusters; d: dimension; markPosition: the position for the label
+    // Declare point lists and variables
+    static ArrayList<Point>  pointList = new ArrayList<>();
+    static int k = , d = , markPosition = ; // k: number of clusters, d: dimension, markPosition: label position
     static float[] RMark;
 
     public static void main(String[] args) {
-        int count = 50;
-        double[] c = {};
-        double[] d = {};
+        int count = ; //Total number of cycles
+        double[] c = {0.02,0.04,0.06,0.08,0.1}; //the ratio of the number of constraints to the number of points in the dataset
+        
+        // Iterate over different constraints
+        for (double constraint : c) {
+            // Input and output file names
+            String inputFilename = "";
+            String vertexFilename = "";
 
-        for (int i = 0; i < d.length; i++) {
+            // Initialize constrained points generator
+            Constraints constraints = new Constraints();
+            readMyFile(inputFilename); // Read input file
 
-            //input the file names, which output the results for each algorithm to different files
-            String infilename = "";
-            String matchingfilename = "";
-            String greedyfilename = "";
-            String vertexfilename = "";
+            // Compute maximal distance and minimal distance between any pairwise points in the pointList
+            RMark = getRmax1(pointList);
+//          System.out.println(RMark);
 
-
-            MakeConstrainedPoints makeConstrainedPoints1 = new MakeConstrainedPoints();
-            makeConstrainedPoints1.k = k;
-            makeConstrainedPoints1.readMyFile(infilename);
-            pointArrayList = makeConstrainedPoints1.pointList;
-            RMark = getRmax1(pointArrayList);
-
-
+            // Iterate to run experiments
             for (int j = 0; j < count; j++) {
+                constraints.constraints(constraint, pointList, k);
 
-                makeConstrainedPoints1.makeConstrainedPoints(c[0], d[i]);
+                // Run our algorithm
+                ourComputer ourAlg = new ourComputer(pointList, constraints.cannotList, constraints.mustList, k, RMark);
 
-                //run our algorithm
-                ourComputer ourAlg = new ourComputer(makeConstrainedPoints1.pointList, makeConstrainedPoints1.cannotList, makeConstrainedPoints1.mustList, k, RMark);
-
-                //run Matching algorithm
-                matchingCompute Matching = new matchingCompute();
-                Matching.pointList = makeConstrainedPoints1.pointList;
-                Matching.CannotList = makeConstrainedPoints1.cannotList;
-                Matching.MustList = makeConstrainedPoints1.mustList;
-                Matching.k = makeConstrainedPoints1.k;
-
-                //run Greedy algorithm
-                greedyCompute Greedy = new greedyCompute();
-                Greedy.pointList = makeConstrainedPoints1.pointList;
-                Greedy.CannotList = makeConstrainedPoints1.cannotList;
-                Greedy.MustList = makeConstrainedPoints1.mustList;
-                Greedy.k = makeConstrainedPoints1.k;
-
-
-                for (int k = 0; k < count; k++) {
-                    Random random = new Random();
-                    int randomC = random.nextInt(makeConstrainedPoints1.ListSize);
-                    float[] matching = Matching.matching(randomC, RMark);
-                    float[] greedy = Greedy.greedy(randomC);
+                // Perform random experiments and store results
+                for (int exp = 0; exp < count; exp++) {
                     float[] vertex = ourAlg.vertexCover();
-
-                    //output each result
-                    output(matchingfilename, Arrays.toString(matching) + "\n");
-                    output(greedyfilename, Arrays.toString(greedy) + "\n");
-                    output(vertexfilename, Arrays.toString(vertex) + "\n");
+                    output(vertexFilename, Arrays.toString(vertex) + "\n");
                 }
-
-
             }
         }
     }
 
-    public static void output(String myFilename, String plainEffect) {
-        File fileout = new File(myFilename);
-        if (!fileout.getParentFile().exists()) {
-            fileout.getParentFile().mkdirs();
+
+    public static void readMyFile(String filename) {
+        try (BufferedReader in = new BufferedReader(new FileReader(filename))) {
+            String str;
+            int i = 0;
+
+            while ((str = in.readLine()) != null) {
+                String[] data = str.split("[,]");
+                int mark = (int) Double.parseDouble(data[markPosition].replaceAll("[\\[\\] ]", "").trim());
+                float[] positionPoint = new float[d];
+
+                // the feature of the node
+                for (int j = 0; j < d; j++) {
+                    positionPoint[j] = Float.parseFloat(data[j + (markPosition + 1) % (d + 1)].replaceAll("[\\[\\] ]", ""));
+                }
+
+                //point[ID, feature[], label, conID, mustID]
+                Point point = new Point(i++, positionPoint, mark, -1, -1);
+                pointList.add(point);
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(myFilename, true))) {
-            bufferedWriter.write(plainEffect);
+    }
+
+    // Method to output results to a file
+    public static void output(String filename, String data) {
+        File file = new File(filename);
+        if (!file.getParentFile().exists()) {
+            file.getParentFile().mkdirs(); // Create parent directories if they don't exist
+        }
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, true))) {
+            writer.write(data);
         } catch (IOException e) {
             e.printStackTrace();
         }
