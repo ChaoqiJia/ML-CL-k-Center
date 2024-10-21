@@ -32,7 +32,7 @@ public class OutPut {
 
             // Compute maximal distance and minimal distance between any pairwise points in the pointList
             RMark = getRmax1(pointList);
-//          System.out.println(RMark);
+//          System.out.println(RMark); For large datasets, it's advisable to record this value as input of RMark to save time during data processing.
 
             // Iterate to run experiments
             for (int j = 0; j < count; j++) {
