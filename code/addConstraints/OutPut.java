@@ -17,7 +17,7 @@ public class OutPut {
     static float[] RMark;
 
     public static void main(String[] args) {
-        int count = ; //Total number of cycles
+        int count = 40; //the number of cycles
         double[] c = {0.02,0.04,0.06,0.08,0.1}; //the ratio of the number of constraints to the number of points in the dataset
         
         // Iterate over different constraints
