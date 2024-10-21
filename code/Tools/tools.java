@@ -1,19 +1,32 @@
-package Algorithm.Tools;
+package Tools;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class tools {
 
     // calculate the distance between the two points x,y
-    public static float distance(Point x, Point y) {
-        double dist = 0;
-        for (int i = 0; i < x.getFeature().length; i++) {
-            dist += (x.getFeature()[i] - y.getFeature()[i]) * (x.getFeature()[i] - y.getFeature()[i]);
+    public static float distance(Point A, Point B) {
+        float[] vectorA = A.getFeature();
+        float[] vectorB = B.getFeature();
+        float sum = 0;
+        for (int i = 0; i < vectorA.length; i++) {
+            float diff = vectorA[i] - vectorB[i];
+            sum += diff * diff;
         }
-        return (float) Math.sqrt(dist);
+
+        return (float) Math.sqrt(sum);
     }
 
+    // calculate the distance between the two points x,y
+    private static float calculateEuclideanDistance(float[] vectorA, float[] vectorB) {
+        float sum = 0;
+        for (int i = 0; i < vectorA.length; i++) {
+            float diff = vectorA[i] - vectorB[i];
+            sum += diff * diff;
+        }
+
+        return (float) Math.sqrt(sum);
+    }
 
     public static float[] getRmax1(ArrayList<Point> pointList) {
         float maxDist = 0;
@@ -29,6 +42,5 @@ public class tools {
         float differDist = (float) (5 / Math.pow(10, 5));//set the diff
         return new float[]{maxDist, minDist, differDist};
     }
-
 
 }
