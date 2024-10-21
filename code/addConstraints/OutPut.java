@@ -24,7 +24,7 @@ public class OutPut {
         for (double constraint : c) {
             // Input and output file names
             String inputFilename = "";
-            String vertexFilename = "";
+            String outputFilename = "";
 
             // Initialize constrained points generator
             Constraints constraints = new Constraints();
@@ -44,7 +44,7 @@ public class OutPut {
                 // Perform random experiments and store results
                 for (int exp = 0; exp < count; exp++) {
                     float[] vertex = ourAlg.vertexCover();
-                    output(vertexFilename, Arrays.toString(vertex) + "\n");
+                    output(outputFilename, Arrays.toString(vertex) + "\n");
                 }
             }
         }
